@@ -74,12 +74,20 @@ class MrpWorkorder(models.Model):
     @api.multi
     def button_start(self):
         res = super().button_start()
-        self.button_create_all_moves()
+        if self.move_raw_ids:
+            final_lots = self.generate_lots()
+            self.final_lot_id = final_lots[int(self.qty_produced)]
+
+        #self.button_create_all_moves()
         return res
 
     @api.multi
     def button_execute_all_moves(self):
         for order in self:
+            if not self.move_raw_ids:
+                order.qty_produced = order.production_id.product_qty
+                order.button_finish()
+                continue
             order.all_record_production()
             order._make_active_moves()
             order.final_workorder()
@@ -102,16 +110,25 @@ class MrpWorkorder(models.Model):
         return serial_lot
 
     @api.multi
-    def button_create_all_moves(self):
-        i = 1
+    def record_production(self):
         final_lots = self.generate_lots()
-        active_moves = self.active_move_line_ids.filtered(
-            lambda x: x.product_id.tracking != 'none')
-        if active_moves:
-            active_moves.lot_produced_id = final_lots[0].id
-        while (self.qty_production - i > 0):
-            self._generate_final_lot_ids(final_lots[i])
-            i += 1
+        super().record_production()
+        if self.state == 'progress':
+            self.final_lot_id = final_lots[int(self.qty_produced)]
+        
+
+    @api.multi
+    def button_create_all_moves(self):
+        for order in self:
+            i = 1
+            final_lots = order.generate_lots()
+            active_moves = order.active_move_line_ids.filtered(
+                lambda x: x.product_id.tracking != 'none')
+            for active_move in active_moves:
+                active_move.lot_produced_id = final_lots[0].id
+            while (order.qty_production - i > 0):
+                order._generate_final_lot_ids(final_lots[i])
+                i += 1
 
     @api.multi
     def all_record_production(self):
