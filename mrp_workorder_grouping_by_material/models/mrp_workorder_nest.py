@@ -52,7 +52,6 @@ class MrpWorkorderNest(models.Model):
             if nest.nested_line_ids:
                 nest.workcenter_id = nest.nested_line_ids[0].workcenter_id.id
 
-    @api.multi
     def name_get(self):
         result = []
         for record in self:
