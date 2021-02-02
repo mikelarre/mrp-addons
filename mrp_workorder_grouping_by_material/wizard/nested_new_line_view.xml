@@ -15,12 +15,4 @@
             </form>
         </field>
     </record>
-    
-    <record model="ir.actions.act_window" id="wizard_nested_new_line">
-    	<field name="name">Add to Nest</field>
-    	<field name="res_model">nested.new.line</field>
-        <field name="binding_view_types">form</field>
-    	<field name="view_mode">form</field>
-    	<field name="target">new</field>
-    </record>
 </odoo>

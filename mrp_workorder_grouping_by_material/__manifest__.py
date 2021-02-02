@@ -5,7 +5,7 @@
     "version": "13.0.1.0.0",
     "license": "AGPL-3",
     "depends": [
-        "mrp",
+        "mrp", "product_expiry"
     ],
     "author": "AvanzOSC",
     "website": "http://www.avanzosc.es",
@@ -18,6 +18,7 @@
         "views/mrp_workorder_nest_view.xml",
         "views/mrp_workorder_view.xml",
         "wizard/nested_new_line_view.xml",
+        "wizard/nested_new_line_action_menu.xml",
     ],
     'demo': [],
     'installable': True,

@@ -14,6 +14,7 @@ class MrpBom(models.Model):
                 raise exceptions.ValidationError(
                     "There can only be one main material")
 
+
 class MrpBomLine(models.Model):
     _inherit = "mrp.bom.line"
 

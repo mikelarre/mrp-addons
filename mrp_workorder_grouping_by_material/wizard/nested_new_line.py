@@ -1,6 +1,6 @@
 # Copyright 2020 Mikel Arregi Etxaniz - AvanzOSC
 # License AGPL-3.0 or later (https://www.gnu.org/licenses/agpl.html).
-from odoo import api, fields, models
+from odoo import fields, models
 
 
 class NestedNewLine(models.TransientModel):
@@ -14,17 +14,22 @@ class NestedNewLine(models.TransientModel):
                                       string="Main Material")
 
     def action_done(self):
-        added_wo = self.nested_id.nested_line_ids.mapped('workorder_id')
-        line_states = self.nested_id.nested_line_ids.mapped('state')
         workorders = self.env['mrp.workorder'].search([
             ('id', 'in', self._context.get('active_ids')),
-            ('id', 'not in', added_wo),
-            ('main_product_id', '=', self.nested_id.main_product_id.id)
-            ('state', 'in', line_states),
             ('state', '!=', 'done'),
         ])
         new_lines = []
+        main_product_workcenter = {}
         for wo in workorders:
+            workcenter_dict = main_product_workcenter.get(
+                wo.main_product_id.id)
+            if workcenter_dict:
+                workorders = workcenter_dict.get(wo.workcenter_id.id)
+                if workorders:
+                    workorders |= wo
+                else:
+                    workorders.update({wo.workcenter_id.id: wo})
+
             new_lines.append((0, 0, {
                 "workorder_id": wo.id,
             }))
